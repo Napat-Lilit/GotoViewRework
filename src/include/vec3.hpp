@@ -25,12 +25,12 @@ class Vec3 {
             if (i == 1) return y;
             return z;
         }
-        float &operator[](int i) { 
-           Assert(i >= 0 && i <= 2);
-           if (i == 0) return x;
-           if (i == 1) return y;
-           return z;
-        }
+        // float &operator[](int i) { 
+        //    Assert(i >= 0 && i <= 2);
+        //    if (i == 0) return x;
+        //    if (i == 1) return y;
+        //    return z;
+        // }
 
         Vec3 operator+(const Vec3 &v) const {
             return Vec3(x + v.x, y + v.y, z + v.z);
@@ -69,6 +69,13 @@ class Vec3 {
             return *this;
         }
 
+        float &operator[](int i) {
+            Assert(i >= 0 && i <= 2);
+            if (i == 0) return x;
+            if (i == 1) return y;
+            return z;
+        }
+
         Vec3 operator-() const { return Vec3(-x, -y, -z); }
         float LengthSquared() const { return x * x + y * y + z * z; }
         float Length() const { return std::sqrt(LengthSquared()); }
@@ -78,15 +85,34 @@ class Vec3 {
         // }
         explicit Vec3(const Normal3 &n);    // Actual implementation is in cpp file
 
+        // Some addtional utility functions for RgbColor, which will be used in material implementation
+        Vec3 (float val) : Vec3(val, val, val) {};
+        Vec3 operator/(const Vec3 &s2) const {
+            Assert(!s2.HasNaNs());
+            Vec3 ret = *this;
+            ret.x /= s2.x;
+            ret.y /= s2.y;
+            ret.z /= s2.z;
+            Assert(!ret.HasNaNs());
+
+            return ret;
+        }
+        Vec3 operator*(const Vec3 &sp) const {
+            Assert(!sp.HasNaNs());
+            Vec3 ret = *this;
+            ret.x *= sp.x;
+            ret.y *= sp.y;
+            ret.z *= sp.z;
+            return ret;
+        }
+
         float x,y,z;
 };
 
-// Type aliasing
-// All of these are the exact same thing, namings are only for readability purpose
 using Point3 = Vec3;
 using RgbColor = Vec3;
 
-// Normal must be handled seperately since transformation works a differently with normal
+// Normal must be handled seperately since transformation works a bit differently with normal
 class Normal3 {
 public:
     Normal3() { x = y = z = 0; }
@@ -184,6 +210,10 @@ inline Normal3 operator*(float f, const Normal3 &n) {
 Vec3 Abs(const Vec3 &v);
 Normal3 Abs(const Normal3 &v);
 
+inline float Dot(const Vec3 &v1, const Vec3 &v2) {
+    Assert(!v1.HasNaNs() && !v2.HasNaNs());
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
 inline float Dot(const Normal3 &n1, const Vec3 &v2) {
     Assert(!n1.HasNaNs() && !v2.HasNaNs());
     return n1.x * v2.x + n1.y * v2.y + n1.z * v2.z;
@@ -249,12 +279,12 @@ Vec3 Max(const Vec3 &p1, const Vec3 &p2);
 Vec3 Permute(const Vec3 &p, int x, int y, int z);
 
 // For generating a coordiante system from normal
-inline void CoordinateSystem(const Vec3 &v1, Vec3 *v2, Vec3 *v3) {
-    if (std::abs(v1.x) > std::abs(v1.y))
-        *v2 = Vec3(-v1.z, 0, v1.x) / std::sqrt(v1.x * v1.x + v1.z * v1.z);
+inline void CoordinateSystem(const Normal3 &n1, Vec3 *v2, Vec3 *v3) {
+    if (std::abs(n1.x) > std::abs(n1.y))
+        *v2 = Vec3(-n1.z, 0, n1.x) / std::sqrt(n1.x * n1.x + n1.z * n1.z);
     else
-        *v2 = Vec3(0, v1.z, -v1.y) / std::sqrt(v1.y * v1.y + v1.z * v1.z);
-    *v3 = Cross(v1, *v2);
+        *v2 = Vec3(0, n1.z, -n1.y) / std::sqrt(n1.y * n1.y + n1.z * n1.z);
+    *v3 = Cross(n1, *v2);
 }
 
 inline Point3 OffsetRayOrigin(const Point3 &p, const Vec3 &pError, const Normal3 &n, const Vec3 &w) {
@@ -272,6 +302,30 @@ inline Point3 OffsetRayOrigin(const Point3 &p, const Vec3 &pError, const Normal3
     }
     return po;
 }
+
+// ----------------------------- Some addtional utility functions that will be used for RGB in material implementation
+
+Vec3 Sqrt(const Vec3 &s);
+
+// ----------------------------- These will be used to pack and send sampled values
+
+struct SampleSet1
+{
+    float Sample1;
+};
+struct SampleSet2
+{
+    float Sample1;
+    float Sample2;
+};
+struct SampleSet3
+{
+    float Sample1;
+    float Sample2;
+    float Sample3;
+}; 
+
+// -----------------------------
 
 // What you still lacks
 // 1. random_in_unit_sphere

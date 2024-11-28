@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 project(GotoSimplePathTracer VERSION 1.0 LANGUAGES CXX C)
 
 # Specify C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add the 'src' directory

@@ -6,6 +6,8 @@ set(SOURCES
     error.cpp
     vec3.cpp
     transform.cpp
+
+    bxdf.cpp
 )
 
 # Specify where to place the executable & Add the executable with the listed source files

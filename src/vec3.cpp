@@ -32,3 +32,14 @@ Vec3 Max(const Vec3 &p1, const Vec3 &p2) {
 Vec3 Permute(const Vec3 &p, int x, int y, int z) {
     return Vec3(p[x], p[y], p[z]);
 }
+
+// --------------------------------------------------------------------------------------------------
+
+Vec3 Sqrt(const Vec3 &s) {
+    Vec3 ret;
+    ret.x = std::sqrt(ret.x);
+    ret.y = std::sqrt(ret.y);
+    ret.z = std::sqrt(ret.z);
+    Assert(!ret.HasNaNs());
+    return ret;
+}
